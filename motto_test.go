@@ -6,7 +6,7 @@ package motto
 
 import (
     "testing"
-    "github.com/robertkrimen/otto"
+    "github.com/dop251/otto"
     "io/ioutil"
 )
 
