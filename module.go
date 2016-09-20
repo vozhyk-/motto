@@ -6,7 +6,7 @@ package motto
 
 import (
 	"errors"
-	"github.com/robertkrimen/otto"
+	"github.com/dop251/otto"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
