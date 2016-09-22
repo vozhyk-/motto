@@ -9,6 +9,7 @@ import (
     "io/ioutil"
     "path/filepath"
     "errors"
+    "strings"
 )
 
 // ModuleLoader is declared to load a module.
@@ -147,7 +148,10 @@ func FindFileModule(name, pwd string, paths []string) (string, error) {
                 entryPoint = "./index.js"
             }
 
-            return filepath.Abs(filepath.Join(v, entryPoint))
+            if !strings.HasPrefix(entryPoint, ".") {
+                entryPoint = "./" + entryPoint
+            }
+            return FindFileModule(entryPoint, v, paths)
         }
 
         ok, err = isFile(v)
