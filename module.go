@@ -141,7 +141,9 @@ func FindFileModule(name, pwd string, paths []string) (string, error) {
                 if err != nil {
                     return "", err
                 }
-            } else {
+            }
+
+            if entryPoint == "" {
                 entryPoint = "./index.js"
             }
 
