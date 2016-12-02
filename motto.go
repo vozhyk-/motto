@@ -7,7 +7,6 @@ package motto
 import (
     "github.com/dop251/otto"
     "path/filepath"
-    // "fmt"
 )
 
 // Globally registered modules
@@ -43,6 +42,7 @@ func (this *Motto) Run(name string) (otto.Value, error) {
 
 // Require a module with cache
 func (this *Motto) Require(id, pwd string) (otto.Value, error) {
+    debug("//////////// Require: ", id, pwd)
     if cache, ok := this.moduleCache[id]; ok {
         return cache, nil
     }
@@ -62,6 +62,8 @@ func (this *Motto) Require(id, pwd string) (otto.Value, error) {
         return value, nil
     }
 
+    debug("//////////// this.paths: ", this.paths)
+    debug("//////////// globalPaths: ", globalPaths)
     filename, err := FindFileModule(id, pwd, append(this.paths, globalPaths...))
     if err != nil {
         return otto.UndefinedValue(), err

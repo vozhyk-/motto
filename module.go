@@ -5,18 +5,27 @@
 package motto
 
 import (
+    "errors"
+    "fmt"
     "github.com/dop251/otto"
     "io/ioutil"
     "path/filepath"
-    "errors"
     "strings"
 )
 
 // ModuleLoader is declared to load a module.
 type ModuleLoader func(*Motto) (otto.Value, error)
 
-// Create module loader from javascript source code. 
-// 
+var doDebug = false
+
+func debug(things ...interface{}) {
+    if doDebug {
+        fmt.Println(things...)
+    }
+}
+
+// Create module loader from javascript source code.
+//
 // When the loader is called, the javascript source is executed in Motto.
 // 
 // "pwd" indicates current working directory, which might be used to search for 
@@ -29,6 +38,7 @@ func CreateLoaderFromSource(source, pwd string) ModuleLoader {
         // Provide the "require" method in the module scope.
         jsRequire := func(call otto.FunctionCall) otto.Value {
             jsModuleName := call.Argument(0).String()
+            debug("========== require ", jsModuleName)
 
             moduleValue, err := vm.Require(jsModuleName, pwd)
             if err != nil {
@@ -118,12 +128,15 @@ func FindFileModule(name, pwd string, paths []string) (string, error) {
             choices = add(choices, filepath.Join(pwd, "node_modules", name))
         }
 
+        debug("---------------- Paths:", paths)
         for _, v := range paths {
             choices = add(choices, filepath.Join(v, name))
         }
     }
 
+    debug("---------------- 1")
     for _, v := range choices {
+        debug("---------------- Testing:", v)
         ok, err := isDir(v)
         if err != nil {
             return "", err
@@ -142,6 +155,8 @@ func FindFileModule(name, pwd string, paths []string) (string, error) {
                 if err != nil {
                     return "", err
                 }
+
+                debug("---------------- Entry point (parsed):", entryPoint)
             }
 
             if entryPoint == "" {
@@ -160,9 +175,13 @@ func FindFileModule(name, pwd string, paths []string) (string, error) {
         }
 
         if ok {
+            res, err := filepath.Abs(v)
+            debug("---------------- Returning path (2)", res, err)
             return filepath.Abs(v)
         }
+        debug("---------------- Not a file (2):", v)
     }
 
+    debug("---------------- Returning not found")
     return "", errors.New("Module not found: " + name)
 }
